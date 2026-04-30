@@ -35,6 +35,20 @@ spec:
       - name: tmp
         emptyDir: {}
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: enterprise-apps
+spec:
+  type: LoadBalancer
+  selector:
+    app: frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -67,3 +81,16 @@ spec:
             type: RuntimeDefault
         ports:
         - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-service
+  namespace: enterprise-apps
+spec:
+  selector:
+    app: product-service
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
