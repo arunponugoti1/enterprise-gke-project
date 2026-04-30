@@ -16,7 +16,7 @@ data:
             host='127.0.0.1',
             database='app_db',
             user='app_user',
-            password='password123' # This matches Terraform variable default
+            password='changeme'
         )
         return conn
 
