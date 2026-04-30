@@ -16,7 +16,7 @@ data:
             host='127.0.0.1',
             database='app_db',
             user='app_user',
-            password='changeme'
+            password='password123'
         )
         return conn
 

@@ -37,5 +37,5 @@ resource "google_sql_database" "database" {
 resource "google_sql_user" "users" {
   name     = "app_user"
   instance = google_sql_database_instance.instance.name
-  password = "changeme" # Should use a secret manager in real prod
+  password = "password123" # Updated to match app code
 }
