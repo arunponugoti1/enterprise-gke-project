@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: enterprise-apps
+  labels:
+    istio-injection: enabled # Enable ASM sidecar injection
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: enterprise-app-ksa
+  namespace: enterprise-apps
+  annotations:
+    iam.gke.io/gcp-service-account: enterprise-app-sa@fintech-platform-lab.iam.gserviceaccount.com

@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: database-backup
+  namespace: enterprise-apps
+spec:
+  schedule: "0 2 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: enterprise-app-ksa
+          securityContext:
+            runAsNonRoot: true
+          containers:
+          - name: backup-tool
+            image: google/cloud-sdk:slim
+            command:
+            - /bin/bash
+            - -c
+            - |
+              echo "Starting backup process..."
+              # Example: gsutil cp my-data gs://enterprise-backups-fintech-platform-lab/
+              echo "Backup to GCS completed successfully."
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: ["ALL"]
+              runAsUser: 1000
+          restartPolicy: OnFailure

@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: enterprise-apps
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      serviceAccountName: enterprise-app-ksa
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: user-app
+        image: python:3.11-slim
+        command: ["python", "-c", "import time; print('User Service Running...'); [time.sleep(10) for _ in range(1000)]"]
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+          runAsUser: 1000
+        env:
+        - name: DB_HOST
+          value: "127.0.0.1"
+        - name: DB_PORT
+          value: "5432"
+        resources:
+          limits:
+            cpu: "250m"
+            memory: "256Mi"
+      - name: cloud-sql-proxy
+        image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.1.0
+        args:
+          - "--private-ip"
+          - "fintech-platform-lab:asia-south1:enterprise-db"
+        securityContext:
+          runAsUser: 65532
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: enterprise-apps
+spec:
+  selector:
+    app: user-service
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
