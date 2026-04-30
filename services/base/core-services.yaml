@@ -31,9 +31,25 @@ spec:
         volumeMounts:
         - name: tmp
           mountPath: /tmp
+        - name: html
+          mountPath: /usr/share/nginx/html
+        - name: config
+          mountPath: /etc/nginx/conf.d
       volumes:
       - name: tmp
         emptyDir: {}
+      - name: html
+        configMap:
+          name: frontend-content
+          items:
+            - key: index.html
+              path: index.html
+      - name: config
+        configMap:
+          name: frontend-content
+          items:
+            - key: nginx.conf
+              path: default.conf
 ---
 apiVersion: v1
 kind: Service

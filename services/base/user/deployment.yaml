@@ -21,7 +21,11 @@ spec:
       containers:
       - name: user-app
         image: python:3.11-slim
-        command: ["python", "-c", "import time; print('User Service Running...'); [time.sleep(10) for _ in range(1000)]"]
+        command: ["/bin/bash", "-c"]
+        args:
+          - |
+            pip install flask psycopg2-binary
+            python /app/main.py
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -38,6 +42,9 @@ spec:
           limits:
             cpu: "250m"
             memory: "256Mi"
+        volumeMounts:
+        - name: code
+          mountPath: /app
       - name: cloud-sql-proxy
         image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.1.0
         args:
@@ -50,6 +57,10 @@ spec:
             drop: ["ALL"]
           seccompProfile:
             type: RuntimeDefault
+      volumes:
+      - name: code
+        configMap:
+          name: user-service-code
 ---
 apiVersion: v1
 kind: Service

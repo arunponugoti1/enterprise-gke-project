@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/arunponugoti1/enterprise-gke-project.git
     targetRevision: HEAD
-    path: gke-project/services/base
+    path: services/base
   destination:
     server: https://kubernetes.default.svc
     namespace: enterprise-apps
