@@ -34,6 +34,8 @@ spec:
           seccompProfile:
             type: RuntimeDefault
         env:
+        - name: HOME
+          value: "/tmp"
         - name: DB_HOST
           value: "127.0.0.1"
         - name: DB_PORT
