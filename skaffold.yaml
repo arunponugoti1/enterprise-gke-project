@@ -1,0 +1,25 @@
+apiVersion: skaffold/v4beta7
+kind: Config
+metadata:
+  name: enterprise-boutique
+manifests:
+  helm:
+    releases:
+    - name: enterprise-boutique
+      chartPath: services/boutique/charts
+      namespace: enterprise-apps
+      artifactOverrides:
+        adservice: adservice
+        cartservice: cartservice
+        checkoutservice: checkoutservice
+        currencyservice: currencyservice
+        emailservice: emailservice
+        frontend: frontend
+        paymentservice: paymentservice
+        productcatalogservice: productcatalogservice
+        recommendationservice: recommendationservice
+        shippingservice: shippingservice
+      imageStrategy:
+        helm: {}
+deploy:
+  helm: {}

@@ -4,6 +4,8 @@ This project demonstrates a production-ready, end-to-end cloud-native architectu
 
 ## 🏛️ High-Level Architecture
 
+
+
 ```mermaid
 graph TD
     subgraph "GCP Project"

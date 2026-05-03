@@ -1,0 +1,86 @@
+steps:
+  # 1. Build and Push adservice
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/adservice:$BUILD_ID', 'services/boutique/adservice']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/adservice:$BUILD_ID']
+
+  # 2. Build and Push cartservice
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/cartservice:$BUILD_ID', '-f', 'services/boutique/cartservice/src/Dockerfile', 'services/boutique/cartservice/src']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/cartservice:$BUILD_ID']
+
+  # 3. Build and Push checkoutservice
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/checkoutservice:$BUILD_ID', 'services/boutique/checkoutservice']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/checkoutservice:$BUILD_ID']
+
+  # 4. Build and Push currencyservice
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/currencyservice:$BUILD_ID', 'services/boutique/currencyservice']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/currencyservice:$BUILD_ID']
+
+  # 5. Build and Push emailservice
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/emailservice:$BUILD_ID', 'services/boutique/emailservice']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/emailservice:$BUILD_ID']
+
+  # 6. Build and Push frontend
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/frontend:$BUILD_ID', 'services/boutique/frontend']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/frontend:$BUILD_ID']
+
+  # 7. Build and Push paymentservice
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/paymentservice:$BUILD_ID', 'services/boutique/paymentservice']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/paymentservice:$BUILD_ID']
+
+  # 8. Build and Push productcatalogservice
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/productcatalogservice:$BUILD_ID', 'services/boutique/productcatalogservice']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/productcatalogservice:$BUILD_ID']
+
+  # 9. Build and Push recommendationservice
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/recommendationservice:$BUILD_ID', 'services/boutique/recommendationservice']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/recommendationservice:$BUILD_ID']
+
+  # 10. Build and Push shippingservice
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/shippingservice:$BUILD_ID', 'services/boutique/shippingservice']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/shippingservice:$BUILD_ID']
+
+  # 11. Helm Package and Push
+  - name: 'alpine/helm:3.12.0'
+    id: 'helm-package-push'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        helm package services/boutique/charts --version 0.1.0 --app-version $BUILD_ID
+        PACKAGE_NAME=$(ls onlineboutique-*.tgz || ls online-boutique-*.tgz || ls boutique-*.tgz || ls charts-*.tgz)
+        helm push $${PACKAGE_NAME} oci://asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-helm-repo
+
+  # 12. Create Cloud Deploy Release
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'deploy'
+      - 'releases'
+      - 'create'
+      - 'release-$BUILD_ID'
+      - '--delivery-pipeline=enterprise-pipeline'
+      - '--region=asia-south1'
+      - '--images=adservice=asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/adservice:$BUILD_ID,cartservice=asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/cartservice:$BUILD_ID,checkoutservice=asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/checkoutservice:$BUILD_ID,currencyservice=asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/currencyservice:$BUILD_ID,emailservice=asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/emailservice:$BUILD_ID,frontend=asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/frontend:$BUILD_ID,paymentservice=asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/paymentservice:$BUILD_ID,productcatalogservice=asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/productcatalogservice:$BUILD_ID,recommendationservice=asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/recommendationservice:$BUILD_ID,shippingservice=asia-south1-docker.pkg.dev/$PROJECT_ID/enterprise-docker-repo/shippingservice:$BUILD_ID'
+
+options:
+  substitution_option: 'ALLOW_LOOSE'
+  machineType: 'E2_HIGHCPU_8' # Use faster machine for parallel-like sequential builds

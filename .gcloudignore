@@ -1,0 +1,5 @@
+.git
+.terraform
+node_modules
+*.tgz
+infrastructure/terraform.tfstate*

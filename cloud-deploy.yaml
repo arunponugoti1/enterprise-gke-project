@@ -1,0 +1,17 @@
+apiVersion: deploy.cloud.google.com/v1
+kind: DeliveryPipeline
+metadata:
+  name: enterprise-pipeline
+description: Enterprise application delivery pipeline
+serialPipeline:
+  stages:
+  - targetId: gke-prod
+    profiles: []
+---
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: gke-prod
+description: GKE production cluster
+gke:
+  cluster: projects/fintech-platform-lab/locations/asia-south1/clusters/enterprise-gke-cluster
